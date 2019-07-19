@@ -65,7 +65,7 @@ public class ResultHolder<T> {
             return products.getLast();
         }
         if (productToAdd.getPrice() < productMetrics.getMaxPrice()){
-            return products.stream().filter(p -> identification.apply(p).equals(identification.apply(productToAdd))).max(Comparator.comparingDouble(Product::getPrice)).get();//todo get
+            return products.stream().filter(p -> identification.apply(p).equals(identification.apply(productToAdd))).max(Comparator.comparingDouble(Product::getPrice)).orElse(null);
         }
         return null;
     }
@@ -98,19 +98,19 @@ public class ResultHolder<T> {
             maxPrice = product.getPrice();
         }
 
-        public long getQuantity() {
+        long getQuantity() {
             return quantity;
         }
 
-        public void setQuantity(long quantity) {
+        void setQuantity(long quantity) {
             this.quantity = quantity;
         }
 
-        public double getMaxPrice() {
+        double getMaxPrice() {
             return maxPrice;
         }
 
-        public void setMaxPrice(double maxPrice) {
+        void setMaxPrice(double maxPrice) {
             this.maxPrice = maxPrice;
         }
     }
