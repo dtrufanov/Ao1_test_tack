@@ -6,9 +6,13 @@ public class Product implements Comparable<Product> {
     private double price;
 
     public static Product parseProduct(String input) {
-        return new Product(input,
-                Long.parseLong(input.substring(0, input.indexOf(','))),
-                Double.parseDouble(input.substring(input.lastIndexOf(',') + 1)));
+        try {
+            return new Product(input,
+                    Long.parseLong(input.substring(0, input.indexOf(','))),
+                    Double.parseDouble(input.substring(input.lastIndexOf(',') + 1)));
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     public Product(String line, long id, double price) {

@@ -24,6 +24,9 @@ public class ResultHolder<T> {
     }
 
     public void add(Product product) {
+        if (product == null) {
+            return;
+        }
         ProductMetrics productMetrics = getMetrics(product);
         boolean noNeedReplace = products.size() < maxSize && productMetrics.getQuantity() < maxSameSize;
         if (noNeedReplace) {
@@ -34,6 +37,12 @@ public class ResultHolder<T> {
             return;
         }
         replaceProduct(productMetrics, product);
+    }
+
+    public void merge(ResultHolder<T> another) {
+        for (Product product : another.getProducts()) {
+            add(product);
+        }
     }
 
     private ProductMetrics getMetrics(Product product) {
