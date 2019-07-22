@@ -3,7 +3,7 @@ package trufanov.ao1.data;
 import java.util.*;
 import java.util.function.Function;
 
-public class ResultHolder<T> {
+public class PriceBatchResultHolder<T> {
     private LinkedList<Product> products = new LinkedList<>();
     private Map<T, ProductMetrics> metrics = new HashMap<>();
     private double maxPrice;
@@ -13,7 +13,7 @@ public class ResultHolder<T> {
 
     private static final double NO_PRICE = Double.NEGATIVE_INFINITY;
 
-    public ResultHolder(int maxSize, int maxSameSize, Function<Product, T> identification) {
+    public PriceBatchResultHolder(int maxSize, int maxSameSize, Function<Product, T> identification) {
         this.maxSize = maxSize;
         this.maxSameSize = maxSameSize;
         this.identification = identification;
@@ -39,7 +39,7 @@ public class ResultHolder<T> {
         replaceProduct(productMetrics, product);
     }
 
-    public void merge(ResultHolder<T> another) {
+    public void merge(PriceBatchResultHolder<T> another) {
         for (Product product : another.getProducts()) {
             add(product);
         }

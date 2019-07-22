@@ -1,19 +1,17 @@
 package trufanov.ao1.process;
 
 import trufanov.ao1.data.Product;
-import trufanov.ao1.data.ResultHolder;
+import trufanov.ao1.data.PriceBatchResultHolder;
+import trufanov.ao1.util.FileUtils;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class AsyncProcessor implements Processor {
     private final int processWorkerCount;
-    private static final int processCapacity = 100_000_000;
+    private static final int processCapacity = 10_000;
     private final List<ProcessWorker> processWorkers;
     private final ArrayBlockingQueue<String> processingQueue = new ArrayBlockingQueue<>(processCapacity);
 
@@ -36,14 +34,13 @@ public class AsyncProcessor implements Processor {
                 processWorker.start();
             }
             for (File file : inputDir.listFiles()) {
-                try (BufferedReader in = new BufferedReader(new FileReader(file))) {
-                    String line;
-                    while ((line = in.readLine()) != null) {
-                        processingQueue.put(line);
+                FileUtils.readLines(file, e -> {
+                    try {
+                        processingQueue.put(e);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
                     }
-                } catch (IOException e) {
-                    System.out.println("Failed to read from " + file.getAbsolutePath());
-                }
+                });
             }
             long current = System.currentTimeMillis();
             System.out.println(current - start);
@@ -59,7 +56,7 @@ public class AsyncProcessor implements Processor {
         } catch (InterruptedException e) {
 
         }
-        ResultHolder<Long> resultHolder = null;
+        PriceBatchResultHolder<Long> resultHolder = null;
         for (ProcessWorker processWorker : processWorkers) {
             if (resultHolder == null) {
                 resultHolder = processWorker.getResultHolder();
