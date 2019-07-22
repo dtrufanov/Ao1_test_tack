@@ -29,9 +29,6 @@ public class ProcessWorker extends Thread {
                 //todo
             }
         }
-        synchronized (queue) {
-            queue.notifyAll();
-        }
     }
     public ResultHolder<Long> getResultHolder() {
         return resultHolder;

@@ -47,13 +47,10 @@ public class AsyncProcessor implements Processor {
             }
             long current = System.currentTimeMillis();
             System.out.println(current - start);
+
             processingQueue.put("stop");
-            synchronized (processingQueue) {
-                try {
-                    processingQueue.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();//todo
-                }
+            for (ProcessWorker processWorker : processWorkers) {
+                processWorker.join();
             }
 
             System.out.println(System.currentTimeMillis() - current);

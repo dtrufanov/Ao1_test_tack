@@ -35,7 +35,7 @@ public class Main {
     private static Processor getProcessor(String[] args) {
         int workers = 0;
         if (args.length > 2) {
-            workers = Integer.parseInt(args[3]);
+            workers = Integer.parseInt(args[2]);
         }
         return workers > 0 ? new AsyncProcessor(workers) : new LinearProcessor();
     }
