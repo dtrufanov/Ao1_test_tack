@@ -3,6 +3,8 @@ package trufanov.ao1.data;
 import java.util.*;
 
 public class MetricsProductResultHolder extends ProductResultHolder {
+    private static final Comparator<Product> COMPARATOR = Comparator.comparingDouble(Product::getPrice);
+
     private LinkedList<Product> products = new LinkedList<>();
     private Map<Long, ProductMetrics> metrics = new HashMap<>();
     private double maxPrice;
@@ -46,29 +48,29 @@ public class MetricsProductResultHolder extends ProductResultHolder {
 
     private void addProduct(Product product) {
         products.add(product);
-        products.sort(Comparator.comparingDouble(Product::getPrice));
+        products.sort(COMPARATOR);
         updateMetrics(product);
     }
 
     private void replaceProduct(ProductMetrics productMetrics, Product product) {
-        Product productToRemove = findExpensiveProduct(productMetrics, product);
-        if (productToRemove != null) {
-            products.remove(productToRemove);
+        Product productToReplace = findProductToReplace(productMetrics, product);
+        if (productToReplace != null) {
+            products.remove(productToReplace);
             products.add(product);
-            products.sort(Comparator.comparingDouble(Product::getPrice));
-            updateMetrics(productToRemove);
-            if (product.getId() != productToRemove.getId()) {
+            products.sort(COMPARATOR);
+            updateMetrics(productToReplace);
+            if (product.getId() != productToReplace.getId()) {
                 updateMetrics(product);
             }
         }
     }
 
-    private Product findExpensiveProduct(ProductMetrics productMetrics, Product productToAdd) {
+    private Product findProductToReplace(ProductMetrics productMetrics, Product productToAdd) {
         if (productMetrics.getQuantity() < maxSameSize) {
             return products.getLast();
         }
         if (productToAdd.getPrice() < productMetrics.getMaxPrice()){
-            return products.stream().filter(p -> p.getId() == productToAdd.getId()).max(Comparator.comparingDouble(Product::getPrice)).orElse(null);
+            return products.stream().filter(p -> p.getId() == productToAdd.getId()).max(COMPARATOR).orElse(null);
         }
         return null;
     }
@@ -79,25 +81,36 @@ public class MetricsProductResultHolder extends ProductResultHolder {
         if (productMetrics == null) {
             metrics.put(id, new ProductMetrics(product));
         } else {
-            productMetrics.setQuantity(products.stream().filter(p -> p.getId() == product.getId()).count());
-            OptionalDouble optionMax = products.stream().filter(p -> p.getId() == product.getId()).mapToDouble(Product::getPrice).max();
-            productMetrics.setMaxPrice(optionMax.isPresent() ? optionMax.getAsDouble() : NO_PRICE);
+            int count = (int) products.stream().filter(p -> p.getId() == product.getId()).count();
+            if (count == 0) {
+                metrics.remove(id);
+            } else {
+                productMetrics.setQuantity(count);
+                productMetrics.setMaxPrice(products.stream()
+                        .filter(p -> p.getId() == product.getId())
+                        .mapToDouble(Product::getPrice)
+                        .max()
+                        .orElse(NO_PRICE));
+            }
         }
-        maxPrice = products.stream().mapToDouble(Product::getPrice).max().orElse(NO_PRICE);
+        maxPrice = products.stream()
+                .mapToDouble(Product::getPrice)
+                .max()
+                .orElse(NO_PRICE);
     }
 
 
     private class ProductMetrics {
-        long quantity;
+        int quantity;
         double maxPrice;
 
         ProductMetrics() {
-            this.quantity = 0L;
+            this.quantity = 0;
             this.maxPrice = NO_PRICE;
         }
 
         ProductMetrics(Product product) {
-            quantity = 1L;
+            quantity = 1;
             maxPrice = product.getPrice();
         }
 
@@ -105,7 +118,7 @@ public class MetricsProductResultHolder extends ProductResultHolder {
             return quantity;
         }
 
-        void setQuantity(long quantity) {
+        void setQuantity(int quantity) {
             this.quantity = quantity;
         }
 
