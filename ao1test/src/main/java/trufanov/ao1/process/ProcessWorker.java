@@ -1,17 +1,18 @@
 package trufanov.ao1.process;
 
 import trufanov.ao1.data.Product;
-import trufanov.ao1.data.PriceBatchResultHolder;
+import trufanov.ao1.data.MetricsProductResultHolder;
+import trufanov.ao1.data.ProductResultHolder;
 
 import java.util.concurrent.BlockingQueue;
 
 public class ProcessWorker extends Thread {
     private final BlockingQueue<String> queue;
-    private final PriceBatchResultHolder resultHolder;
+    private final ProductResultHolder resultHolder;
 
     public ProcessWorker(BlockingQueue<String> queue) {
         this.queue = queue;
-        resultHolder = new PriceBatchResultHolder(1000, 20);
+        resultHolder = new MetricsProductResultHolder(1000, 20);
     }
 
     @Override
@@ -30,7 +31,7 @@ public class ProcessWorker extends Thread {
             }
         }
     }
-    public PriceBatchResultHolder getResultHolder() {
+    public ProductResultHolder getResultHolder() {
         return resultHolder;
     }
 }

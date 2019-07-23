@@ -2,7 +2,7 @@ package trufanov.ao1.data;
 
 import java.util.*;
 
-public class PriceBatchResultHolder extends ProductResultHolder {
+public class MetricsProductResultHolder extends ProductResultHolder {
     private LinkedList<Product> products = new LinkedList<>();
     private Map<Long, ProductMetrics> metrics = new HashMap<>();
     private double maxPrice;
@@ -12,7 +12,7 @@ public class PriceBatchResultHolder extends ProductResultHolder {
 
     private static final double NO_PRICE = Double.NEGATIVE_INFINITY;
 
-    public PriceBatchResultHolder(int maxSize, int maxSameSize) {
+    public MetricsProductResultHolder(int maxSize, int maxSameSize) {
         this.maxSize = maxSize;
         this.maxSameSize = maxSameSize;
     }

@@ -2,7 +2,8 @@ package trufanov.ao1.test;
 
 import org.junit.Test;
 import trufanov.ao1.data.Product;
-import trufanov.ao1.data.PriceBatchResultHolder;
+import trufanov.ao1.data.MetricsProductResultHolder;
+import trufanov.ao1.data.ProductResultHolder;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,7 +24,7 @@ public class ResultHolderTest {
 
     public void baseTest(String filename, int maxSize, int maxSameSize) throws IOException {
         List<String> lines = TestUtils.readFile("input/" + filename + ".csv");
-        PriceBatchResultHolder resultHolder = new PriceBatchResultHolder(maxSize, maxSameSize);
+        ProductResultHolder resultHolder = new MetricsProductResultHolder(maxSize, maxSameSize);
         for (String line : lines) {
             resultHolder.add(Product.parseProduct(line));
         }

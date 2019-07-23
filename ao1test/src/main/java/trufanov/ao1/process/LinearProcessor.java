@@ -1,7 +1,8 @@
 package trufanov.ao1.process;
 
 import trufanov.ao1.data.Product;
-import trufanov.ao1.data.PriceBatchResultHolder;
+import trufanov.ao1.data.MetricsProductResultHolder;
+import trufanov.ao1.data.ProductResultHolder;
 import trufanov.ao1.util.FileUtils;
 
 import java.io.File;
@@ -15,7 +16,7 @@ public class LinearProcessor implements Processor {
     @Override
     public List<Product> process(File inputDir) {
         long start = System.currentTimeMillis();
-        PriceBatchResultHolder resultHolder = new PriceBatchResultHolder(1000, 20);
+        ProductResultHolder resultHolder = new MetricsProductResultHolder(1000, 20);
         for (File file : inputDir.listFiles()) {
             FileUtils.readLines(file, line -> resultHolder.add(Product.parseProduct(line)));
         }

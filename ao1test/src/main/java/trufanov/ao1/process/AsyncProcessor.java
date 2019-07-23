@@ -1,7 +1,7 @@
 package trufanov.ao1.process;
 
 import trufanov.ao1.data.Product;
-import trufanov.ao1.data.PriceBatchResultHolder;
+import trufanov.ao1.data.ProductResultHolder;
 import trufanov.ao1.util.FileUtils;
 
 import java.io.File;
@@ -56,7 +56,7 @@ public class AsyncProcessor implements Processor {
         } catch (InterruptedException e) {
 
         }
-        PriceBatchResultHolder resultHolder = null;
+        ProductResultHolder resultHolder = null;
         for (ProcessWorker processWorker : processWorkers) {
             if (resultHolder == null) {
                 resultHolder = processWorker.getResultHolder();
