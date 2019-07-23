@@ -10,7 +10,7 @@ public class ProcessWorker extends Thread {
     private final BlockingQueue<String[]> queue;
     private final ProductResultHolder resultHolder;
 
-    public ProcessWorker(BlockingQueue<String[]> queue) {
+    ProcessWorker(BlockingQueue<String[]> queue) {
         this.queue = queue;
         resultHolder = new MetricsProductResultHolder(1000, 20);
     }
@@ -36,7 +36,7 @@ public class ProcessWorker extends Thread {
             }
         }
     }
-    public ProductResultHolder getResultHolder() {
+    ProductResultHolder getResultHolder() {
         return resultHolder;
     }
 }

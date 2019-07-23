@@ -12,11 +12,13 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class AsyncProcessor implements Processor {
+    private static final int BATCH_SIZE = 10_000;
+    private static final int PROCESS_CAPACITY = 1_000;
+    private static final String[] STOP_FLAG = new String[0];
+
     private final int processWorkerCount;
-    private final int batchSize = 10_000;
-    private static final int processCapacity = 1_000;
     private final List<ProcessWorker> processWorkers;
-    private final ArrayBlockingQueue<String[]> processingQueue = new ArrayBlockingQueue<>(processCapacity);
+    private final ArrayBlockingQueue<String[]> processingQueue;
 
 
     public AsyncProcessor(int processWorkerCount) {
@@ -25,22 +27,15 @@ public class AsyncProcessor implements Processor {
         }
         this.processWorkerCount = processWorkerCount;
         processWorkers = new ArrayList<>(processWorkerCount);
+        processingQueue = new ArrayBlockingQueue<>(PROCESS_CAPACITY);
     }
 
     @Override
     public List<Product> process(File inputDir) {
         try {
-
-            long start = System.currentTimeMillis();
             startWorkers();
             processFiles(inputDir);
-            long current = System.currentTimeMillis();
-            System.out.println(current - start);
-
             waitForProcessingFinish();
-            System.out.println(System.currentTimeMillis() - current);
-            System.out.println(System.currentTimeMillis() - start);
-
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return Collections.emptyList();
@@ -62,16 +57,20 @@ public class AsyncProcessor implements Processor {
         if (inputDir == null) {
             throw new NullPointerException();
         }
-        String[] batch = new String[batchSize];
+        String[] batch = new String[BATCH_SIZE];
         int[] i = new int[1];
         i[0] = 0;
-        for (File file : inputDir.listFiles()) {
+        File[] files = inputDir.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (File file : files) {
             FileUtils.readLines(file, line -> {
                 try {
                     if (line != null) {
                         batch[i[0]++] = line;
-                        if (i[0] == batchSize) {
-                            processingQueue.put(Arrays.copyOf(batch, batchSize));
+                        if (i[0] == BATCH_SIZE) {
+                            processingQueue.put(Arrays.copyOf(batch, BATCH_SIZE));
                             Arrays.fill(batch, null);
                             i[0] = 0;
                         }
@@ -87,7 +86,7 @@ public class AsyncProcessor implements Processor {
     }
 
     private void waitForProcessingFinish() throws InterruptedException {
-        processingQueue.put(new String[0]);
+        processingQueue.put(STOP_FLAG);
         for (ProcessWorker processWorker : processWorkers) {
             processWorker.join();
         }

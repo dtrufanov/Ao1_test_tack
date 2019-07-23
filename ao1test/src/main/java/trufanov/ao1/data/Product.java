@@ -1,6 +1,6 @@
 package trufanov.ao1.data;
 
-public class Product implements Comparable<Product> {
+public class Product {
     private String line;
     private long id;
     private double price;
@@ -31,11 +31,6 @@ public class Product implements Comparable<Product> {
 
     public double getPrice() {
         return price;
-    }
-
-    @Override
-    public int compareTo(Product o) {
-        return Double.compare(price, o.price);
     }
 
     @Override

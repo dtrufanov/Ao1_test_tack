@@ -8,7 +8,7 @@ public class MetricsProductResultHolder extends ProductResultHolder {
     private double maxPrice;
     private int maxSize;
     private int maxSameSize;
-    private final ProductMetrics EMPTY = new ProductMetrics();
+    private final ProductMetrics emptyMetrics = new ProductMetrics();
 
     private static final double NO_PRICE = Double.NEGATIVE_INFINITY;
 
@@ -41,12 +41,12 @@ public class MetricsProductResultHolder extends ProductResultHolder {
 
     private ProductMetrics getMetrics(Product product) {
         ProductMetrics productMetrics = metrics.get(product.getId());
-        return productMetrics != null ? productMetrics : EMPTY;
+        return productMetrics != null ? productMetrics : emptyMetrics;
     }
 
     private void addProduct(Product product) {
         products.add(product);
-        Collections.sort(products);
+        products.sort(Comparator.comparingDouble(Product::getPrice));
         updateMetrics(product);
     }
 
@@ -55,7 +55,7 @@ public class MetricsProductResultHolder extends ProductResultHolder {
         if (productToRemove != null) {
             products.remove(productToRemove);
             products.add(product);
-            Collections.sort(products);
+            products.sort(Comparator.comparingDouble(Product::getPrice));
             updateMetrics(productToRemove);
             if (product.getId() != productToRemove.getId()) {
                 updateMetrics(product);
