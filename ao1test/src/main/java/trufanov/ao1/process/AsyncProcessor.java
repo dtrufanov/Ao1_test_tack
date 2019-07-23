@@ -13,7 +13,7 @@ import java.util.concurrent.*;
 import java.util.logging.Logger;
 
 public class AsyncProcessor implements Processor {
-    Logger logger = Logger.getGlobal();
+    private static final Logger logger = Logger.getGlobal();
 
     private static final int BATCH_SIZE = 1_000;
     private static final int PROCESS_CAPACITY = 25;
@@ -26,7 +26,6 @@ public class AsyncProcessor implements Processor {
 
 
     public AsyncProcessor(int processWorkerCount) {
-
         if (processWorkerCount < 1) {
             throw new IllegalArgumentException();
         }
@@ -76,6 +75,7 @@ public class AsyncProcessor implements Processor {
         String[] batch = new String[BATCH_SIZE];
         int[] i = new int[1];
         i[0] = 0;
+
         File[] files = inputDir.listFiles();
         if (files == null) {
             return;
