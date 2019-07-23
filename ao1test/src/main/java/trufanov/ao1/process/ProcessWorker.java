@@ -7,27 +7,32 @@ import trufanov.ao1.data.ProductResultHolder;
 import java.util.concurrent.BlockingQueue;
 
 public class ProcessWorker extends Thread {
-    private final BlockingQueue<String> queue;
+    private final BlockingQueue<String[]> queue;
     private final ProductResultHolder resultHolder;
 
-    public ProcessWorker(BlockingQueue<String> queue) {
+    public ProcessWorker(BlockingQueue<String[]> queue) {
         this.queue = queue;
         resultHolder = new MetricsProductResultHolder(1000, 20);
     }
 
     @Override
     public void run() {
-        String line = null;
+        String[] batch = null;
         while (true) {
             try {
-                line = queue.take();
-                if ("stop".equals(line)) {
-                    queue.put("stop");
+                batch = queue.take();
+                if (batch.length == 0) {
+                    queue.put(batch);
                     break;
                 }
-                resultHolder.add(Product.parseProduct(line));
+                for (String s : batch) {
+                    if (s != null) {
+                        resultHolder.add(Product.parseProduct(s));
+                    }
+                }
             } catch (InterruptedException e) {
-                //todo
+                Thread.currentThread().interrupt();
+                return;
             }
         }
     }

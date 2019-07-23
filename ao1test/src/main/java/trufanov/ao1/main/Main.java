@@ -3,6 +3,7 @@ package trufanov.ao1.main;
 import trufanov.ao1.data.Product;
 import trufanov.ao1.process.AsyncProcessor;
 import trufanov.ao1.process.LinearProcessor;
+import trufanov.ao1.process.NullProcessor;
 import trufanov.ao1.process.Processor;
 
 import java.io.*;
@@ -37,6 +38,12 @@ public class Main {
         if (args.length > 2) {
             workers = Integer.parseInt(args[2]);
         }
-        return workers > 0 ? new AsyncProcessor(workers) : new LinearProcessor();
+        if (workers > 0) {
+            return new AsyncProcessor(workers);
+        }
+        if (workers < 0) {
+            return new NullProcessor();
+        }
+        return new LinearProcessor();
     }
 }

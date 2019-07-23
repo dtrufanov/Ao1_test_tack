@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 public class FileUtils {
+    private FileUtils(){}
+
     public static void readLines(File file, Consumer<String> consumer) {
         try (BufferedReader in = new BufferedReader(new FileReader(file))) {
             in.lines().forEach(consumer);
