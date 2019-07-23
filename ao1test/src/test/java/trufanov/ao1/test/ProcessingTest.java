@@ -17,12 +17,12 @@ import static org.junit.Assert.assertEquals;
 public class ProcessingTest {
     @Test
     public void testResultHolder() throws IOException {
-        baseResultHolderTest("in_1", 1, 1);
-        baseResultHolderTest("in_1", 2, 1);
-        baseResultHolderTest("in_1", 2, 2);
-        baseResultHolderTest("in_1", 4, 2);
-        baseResultHolderTest("in_1", 6, 1);
-        baseResultHolderTest("in_1", 6, 3);
+        baseResultHolderTest("test_1", 1, 1);
+        baseResultHolderTest("test_1", 2, 1);
+        baseResultHolderTest("test_1", 2, 2);
+        baseResultHolderTest("test_1", 4, 2);
+        baseResultHolderTest("test_1", 6, 1);
+        baseResultHolderTest("test_1", 6, 3);
     }
 
     private void baseResultHolderTest(String filename, int maxSize, int maxSameSize) throws IOException {
