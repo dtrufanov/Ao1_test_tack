@@ -7,11 +7,11 @@ import java.util.concurrent.BlockingQueue;
 
 public class ProcessWorker extends Thread {
     private final BlockingQueue<String> queue;
-    private final PriceBatchResultHolder<Long> resultHolder;
+    private final PriceBatchResultHolder resultHolder;
 
     public ProcessWorker(BlockingQueue<String> queue) {
         this.queue = queue;
-        resultHolder = new PriceBatchResultHolder<>(1000, 20, Product::getId);
+        resultHolder = new PriceBatchResultHolder(1000, 20);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class ProcessWorker extends Thread {
             }
         }
     }
-    public PriceBatchResultHolder<Long> getResultHolder() {
+    public PriceBatchResultHolder getResultHolder() {
         return resultHolder;
     }
 }

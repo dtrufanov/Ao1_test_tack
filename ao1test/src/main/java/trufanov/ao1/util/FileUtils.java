@@ -9,10 +9,7 @@ import java.util.function.Consumer;
 public class FileUtils {
     public static void readLines(File file, Consumer<String> consumer) {
         try (BufferedReader in = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = in.readLine()) != null) {
-                consumer.accept(line);
-            }
+            in.lines().forEach(consumer);
         } catch (IOException e) {
             System.out.println("Failed to read from " + file.getAbsolutePath());
         }

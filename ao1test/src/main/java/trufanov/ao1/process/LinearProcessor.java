@@ -15,13 +15,13 @@ public class LinearProcessor implements Processor {
     @Override
     public List<Product> process(File inputDir) {
         long start = System.currentTimeMillis();
-        PriceBatchResultHolder<Long> resultHolder = new PriceBatchResultHolder<>(1000, 20, Product::getId);
+        PriceBatchResultHolder resultHolder = new PriceBatchResultHolder(1000, 20);
         for (File file : inputDir.listFiles()) {
             FileUtils.readLines(file, line -> resultHolder.add(Product.parseProduct(line)));
         }
 
         long current = System.currentTimeMillis();
         System.out.println(current - start);
-        return resultHolder.getProducts();
+        return resultHolder.get();
     }
 }

@@ -56,14 +56,14 @@ public class AsyncProcessor implements Processor {
         } catch (InterruptedException e) {
 
         }
-        PriceBatchResultHolder<Long> resultHolder = null;
+        PriceBatchResultHolder resultHolder = null;
         for (ProcessWorker processWorker : processWorkers) {
             if (resultHolder == null) {
                 resultHolder = processWorker.getResultHolder();
             } else {
-                resultHolder.merge(processWorker.getResultHolder());
+                resultHolder.addAll(processWorker.getResultHolder().get());
             }
         }
-        return resultHolder.getProducts();
+        return resultHolder.get();
     }
 }

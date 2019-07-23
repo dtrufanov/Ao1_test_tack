@@ -1,28 +1,28 @@
 package trufanov.ao1.data;
 
 import java.util.*;
-import java.util.function.Function;
 
-public class PriceBatchResultHolder<T> {
+public class PriceBatchResultHolder extends ProductResultHolder {
     private LinkedList<Product> products = new LinkedList<>();
-    private Map<T, ProductMetrics> metrics = new HashMap<>();
+    private Map<Long, ProductMetrics> metrics = new HashMap<>();
     private double maxPrice;
     private int maxSize;
     private int maxSameSize;
-    private Function<Product, T> identification;
+    private final ProductMetrics EMPTY = new ProductMetrics();
 
     private static final double NO_PRICE = Double.NEGATIVE_INFINITY;
 
-    public PriceBatchResultHolder(int maxSize, int maxSameSize, Function<Product, T> identification) {
+    public PriceBatchResultHolder(int maxSize, int maxSameSize) {
         this.maxSize = maxSize;
         this.maxSameSize = maxSameSize;
-        this.identification = identification;
     }
 
-    public List<Product> getProducts() {
+    @Override
+    public List<Product> get() {
         return products;
     }
 
+    @Override
     public void add(Product product) {
         if (product == null) {
             return;
@@ -39,15 +39,9 @@ public class PriceBatchResultHolder<T> {
         replaceProduct(productMetrics, product);
     }
 
-    public void merge(PriceBatchResultHolder<T> another) {
-        for (Product product : another.getProducts()) {
-            add(product);
-        }
-    }
-
     private ProductMetrics getMetrics(Product product) {
-        ProductMetrics productMetrics = metrics.get(identification.apply(product));
-        return productMetrics != null ? productMetrics : new ProductMetrics();
+        ProductMetrics productMetrics = metrics.get(product.getId());
+        return productMetrics != null ? productMetrics : EMPTY;
     }
 
     private void addProduct(Product product) {
@@ -74,19 +68,19 @@ public class PriceBatchResultHolder<T> {
             return products.getLast();
         }
         if (productToAdd.getPrice() < productMetrics.getMaxPrice()){
-            return products.stream().filter(p -> identification.apply(p).equals(identification.apply(productToAdd))).max(Comparator.comparingDouble(Product::getPrice)).orElse(null);
+            return products.stream().filter(p -> p.getId() == productToAdd.getId()).max(Comparator.comparingDouble(Product::getPrice)).orElse(null);
         }
         return null;
     }
 
     private void updateMetrics(Product product) {
-        T id = identification.apply(product);
+        long id = product.getId();
         ProductMetrics productMetrics = metrics.get(id);
         if (productMetrics == null) {
             metrics.put(id, new ProductMetrics(product));
         } else {
-            productMetrics.setQuantity(products.stream().filter(p -> identification.apply(p).equals(identification.apply(product))).count());
-            OptionalDouble optionMax = products.stream().filter(p -> identification.apply(p).equals(identification.apply(product))).mapToDouble(Product::getPrice).max();
+            productMetrics.setQuantity(products.stream().filter(p -> p.getId() == product.getId()).count());
+            OptionalDouble optionMax = products.stream().filter(p -> p.getId() == product.getId()).mapToDouble(Product::getPrice).max();
             productMetrics.setMaxPrice(optionMax.isPresent() ? optionMax.getAsDouble() : NO_PRICE);
         }
         maxPrice = products.stream().mapToDouble(Product::getPrice).max().orElse(NO_PRICE);
