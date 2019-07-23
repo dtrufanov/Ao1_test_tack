@@ -20,4 +20,9 @@ public class NullProcessor implements Processor {
         }
         return Collections.emptyList();
     }
+
+    @Override
+    public String toString() {
+        return "NullProcessor{}";
+    }
 }

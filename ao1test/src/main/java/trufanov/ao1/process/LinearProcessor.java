@@ -22,4 +22,9 @@ public class LinearProcessor implements Processor {
         }
         return resultHolder.get();
     }
+
+    @Override
+    public String toString() {
+        return "LinearProcessor{}";
+    }
 }

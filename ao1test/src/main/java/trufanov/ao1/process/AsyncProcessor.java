@@ -13,7 +13,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 public class AsyncProcessor implements Processor {
     private static final int BATCH_SIZE = 10_000;
-    private static final int PROCESS_CAPACITY = 1_000;
+    private static final int PROCESS_CAPACITY = 100;
     private static final String[] STOP_FLAG = new String[0];
 
     private final int processWorkerCount;
@@ -28,6 +28,13 @@ public class AsyncProcessor implements Processor {
         this.processWorkerCount = processWorkerCount;
         processWorkers = new ArrayList<>(processWorkerCount);
         processingQueue = new ArrayBlockingQueue<>(PROCESS_CAPACITY);
+    }
+
+    @Override
+    public String toString() {
+        return "AsyncProcessor{" +
+                "processWorkerCount=" + processWorkerCount +
+                '}';
     }
 
     @Override

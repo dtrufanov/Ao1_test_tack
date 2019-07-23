@@ -31,7 +31,7 @@ public class Main {
         }
 
         Processor processor = getProcessor(args);
-        logger.info("Start processing");
+        logger.info("Start processing using " + processor);
         long start = System.currentTimeMillis();
         List<Product> products = processor.process(inputDir);
         logger.info("Processing is finished in " + (System.currentTimeMillis() - start) + " ms");
