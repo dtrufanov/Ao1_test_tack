@@ -9,24 +9,30 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.*;
+import java.util.logging.Logger;
 
 public class AsyncProcessor implements Processor {
-    private static final int BATCH_SIZE = 10_000;
-    private static final int PROCESS_CAPACITY = 100;
+    Logger logger = Logger.getGlobal();
+
+    private static final int BATCH_SIZE = 1_000;
+    private static final int PROCESS_CAPACITY = 25;
     private static final String[] STOP_FLAG = new String[0];
 
     private final int processWorkerCount;
-    private final List<ProcessWorker> processWorkers;
+    private final List<Future<ProductResultHolder>> futures;
     private final ArrayBlockingQueue<String[]> processingQueue;
+    private final ExecutorService executorService;
 
 
     public AsyncProcessor(int processWorkerCount) {
+
         if (processWorkerCount < 1) {
             throw new IllegalArgumentException();
         }
         this.processWorkerCount = processWorkerCount;
-        processWorkers = new ArrayList<>(processWorkerCount);
+        executorService = Executors.newFixedThreadPool(processWorkerCount);
+        futures = new ArrayList<>(processWorkerCount);
         processingQueue = new ArrayBlockingQueue<>(PROCESS_CAPACITY);
     }
 
@@ -42,21 +48,24 @@ public class AsyncProcessor implements Processor {
         try {
             startWorkers();
             processFiles(inputDir);
-            waitForProcessingFinish();
+            processingQueue.put(STOP_FLAG);
+            return getResult();
+        } catch (ExecutionException e) {
+            logger.severe("Failed to process: " + e.getMessage());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            return Collections.emptyList();
+            logger.severe("Failed to process: " + e.getMessage());
+        } finally {
+            executorService.shutdown();
         }
-        return getResult();
+        return Collections.emptyList();
     }
 
     private void startWorkers() {
-        processWorkers.clear();
         processingQueue.clear();
+        futures.clear();
         for (int i = 0; i < processWorkerCount; i++) {
-            ProcessWorker processWorker = new ProcessWorker(processingQueue);
-            processWorkers.add(processWorker);
-            processWorker.start();
+            futures.add(executorService.submit(new ProcessWorker(processingQueue)));
         }
     }
 
@@ -92,20 +101,13 @@ public class AsyncProcessor implements Processor {
         }
     }
 
-    private void waitForProcessingFinish() throws InterruptedException {
-        processingQueue.put(STOP_FLAG);
-        for (ProcessWorker processWorker : processWorkers) {
-            processWorker.join();
-        }
-    }
-
-    private List<Product> getResult() {
+    private List<Product> getResult() throws ExecutionException, InterruptedException {
         ProductResultHolder resultHolder = null;
-        for (ProcessWorker processWorker : processWorkers) {
+        for (Future<ProductResultHolder> future : futures) {
             if (resultHolder == null) {
-                resultHolder = processWorker.getResultHolder();
+                resultHolder = future.get();
             } else {
-                resultHolder.addAll(processWorker.getResultHolder().get());
+                resultHolder.addAll(future.get().get());
             }
         }
         return resultHolder == null ? Collections.emptyList() : resultHolder.get();

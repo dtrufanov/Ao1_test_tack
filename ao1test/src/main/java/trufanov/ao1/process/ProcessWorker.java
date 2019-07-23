@@ -5,8 +5,9 @@ import trufanov.ao1.data.MetricsProductResultHolder;
 import trufanov.ao1.data.ProductResultHolder;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
 
-public class ProcessWorker extends Thread {
+public class ProcessWorker implements Callable<ProductResultHolder> {
     private final BlockingQueue<String[]> queue;
     private final ProductResultHolder resultHolder;
 
@@ -16,27 +17,20 @@ public class ProcessWorker extends Thread {
     }
 
     @Override
-    public void run() {
+    public ProductResultHolder call() throws Exception {
         String[] batch = null;
         while (true) {
-            try {
-                batch = queue.take();
-                if (batch.length == 0) {
-                    queue.put(batch);
-                    break;
+            batch = queue.take();
+            if (batch.length == 0) {
+                queue.put(batch);
+                break;
+            }
+            for (String s : batch) {
+                if (s != null) {
+                    resultHolder.add(Product.parseProduct(s));
                 }
-                for (String s : batch) {
-                    if (s != null) {
-                        resultHolder.add(Product.parseProduct(s));
-                    }
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
             }
         }
-    }
-    ProductResultHolder getResultHolder() {
         return resultHolder;
     }
 }

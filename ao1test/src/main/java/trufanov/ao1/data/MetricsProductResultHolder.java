@@ -2,7 +2,7 @@ package trufanov.ao1.data;
 
 import java.util.*;
 
-public class MetricsProductResultHolder extends ProductResultHolder {
+public class MetricsProductResultHolder implements ProductResultHolder {
     private static final Comparator<Product> COMPARATOR = Comparator.comparingDouble(Product::getPrice);
 
     private LinkedList<Product> products = new LinkedList<>();
