@@ -1,6 +1,10 @@
 package trufanov.ao1.data;
 
+import java.util.logging.Logger;
+
 public class Product {
+    private static final Logger logger = Logger.getGlobal();
+
     private String line;
     private long id;
     private double price;
@@ -10,7 +14,8 @@ public class Product {
             return new Product(input,
                     Long.parseLong(input.substring(0, input.indexOf(','))),
                     Double.parseDouble(input.substring(input.lastIndexOf(',') + 1)));
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
+            logger.warning("Failed to parse string: " + e.getMessage());
             return null;
         }
     }
